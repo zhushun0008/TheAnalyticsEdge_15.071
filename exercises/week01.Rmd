@@ -1,0 +1,40 @@
+---
+title: "exercise 01"
+author: "Shun Zhu"
+date: "Saturday, January 10, 2015"
+output: pdf_document
+---
+
+### 01. Installing R
+
+```{r Installing R}
+
+sd(c(5,8,12))
+which.min(c(4,1,6))
+
+```
+
+
+### 02 QUICK QUESTION 1
+``` {r}
+
+# Question of 'At which university was the first version of R developed?'
+
+'Answer is University of Auckland'
+
+```
+
+
+### 03 QUICK QUESTION 2  (1 point possible)
+
+``` {r QUICK QUESTION 2}
+# Which of the following are recommended variable names in R? (Select all correct answers.)
+'SquareRoot2'
+'Square2.Root'
+
+```
+
+
+
+
+

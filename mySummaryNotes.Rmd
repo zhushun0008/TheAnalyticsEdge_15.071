@@ -1,0 +1,20 @@
+---
+title: "Summary Notes for 15.071"
+author: "Shun Zhu"
+date: "Friday, March 06, 2015"
+output: pdf_document
+---
+
+***
+
+## Unit 01
+
+* Set R environment
+     * [R Programming/Settings](http://en.wikibooks.org/wiki/R_Programming/Settings)
+        * The linguistic and encoding options can be modified using Sys.setlocale() 
+     * [Set R to English](http://stackoverflow.com/questions/12760491/the-r-console-is-in-my-native-language-how-can-i-set-r-to-english)
+        * Sys.setenv(LANGUAGE='en')
+
+
+***
+

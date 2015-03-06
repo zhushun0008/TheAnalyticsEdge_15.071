@@ -1,0 +1,124 @@
+---
+title: "Week04_SupremeCourt"
+author: "Shun Zhu"
+date: "Sunday, March 01, 2015"
+output: pdf_document
+---
+
+
+### VIDEO 04
+
+```{r}
+
+# Read in the data
+stevens = read.csv("F:/SkyDrive/Studying/MIT_COURSES/15-071-TheAnalyticsEdge/lecture/dataset/stevens.csv")
+# 1. Docket: just a unique identifier for each case
+# 2. Term: the year of the case
+# 3. six independent variables:
+#       the circuit court of origin
+#	the issue area of the case
+#	the type of petitioner
+#	the type of respondent
+#	the lower court direction
+#	whether or not the petitioner argued that a law or practice was unconstitutional
+# 4. whether or not Justice Stevens voted to reverse the case: 1 for reverse and 0 for affirm
+
+str(stevens)
+
+
+# Split the data
+library(caTools)
+set.seed(3000)
+split = sample.split(stevens$Reverse, SplitRatio = 0.7)
+Train = subset(stevens, split==TRUE)
+Test = subset(stevens, split==FALSE)
+
+# Install rpart library that contains CART
+# install.packages("rpart")
+library(rpart)
+# install.packages("rpart.plot")
+library(rpart.plot)
+
+# CART model
+StevensTree = rpart(Reverse ~ Circuit + Issue + Petitioner + Respondent + LowerCourt + Unconst, method="class", data = Train, control=rpart.control(minbucket=25))
+
+# plot our tree using the prp function
+# CRI is short for Criminal Defendant, INJ is short for Injured Person, etc...
+prp(StevensTree)
+
+# Make predictions
+PredictCART = predict(StevensTree, newdata = Test, type = "class")
+table(Test$Reverse, PredictCART)
+(41+71)/(41+36+22+71)
+
+# ROC curve
+library(ROCR)
+#  without the option type="class" so that we can pick any threshold value
+PredictROC = predict(StevensTree, newdata = Test)
+PredictROC
+
+pred = prediction(PredictROC[,2], Test$Reverse)
+perf = performance(pred, "tpr", "fpr")
+plot(perf)
+
+```
+
+
+### VIDEO 05 - Random Forests
+
+```{r}
+### each tree is built from what we call a bagged or bootstrapped sample of the data.
+### This just means that the data used as the training data for each tree is selected randomly with replacement
+
+# Install randomForest package
+install.packages("randomForest")
+library(randomForest)
+
+# Build random forest model
+StevensForest = randomForest(Reverse ~ Circuit + Issue + Petitioner + Respondent + LowerCourt + Unconst, data = Train, ntree=200, nodesize=25 )
+
+# Convert outcome to factor
+Train$Reverse = as.factor(Train$Reverse)
+Test$Reverse = as.factor(Test$Reverse)
+
+# Try again
+StevensForest = randomForest(Reverse ~ Circuit + Issue + Petitioner + Respondent + LowerCourt + Unconst, data = Train, ntree=200, nodesize=25 )
+
+# Make predictions
+PredictForest = predict(StevensForest, newdata = Test)
+table(Test$Reverse, PredictForest)
+(40+74)/(40+37+19+74)
+
+```
+
+### VIDEO 06
+
+```{r}
+
+# Install cross-validation packages
+# install.packages("caret")
+library(caret)
+# install.packages("e1071")
+library(e1071)
+
+# Define cross-validation experiment
+fitControl = trainControl( method = "cv", number = 10 )
+# use cp values from 0.01 through 0.5
+cartGrid = expand.grid( .cp = (1:50)*0.01) 
+
+# Perform the cross validation
+# Validate our parameters for our CART tree
+train(Reverse ~ Circuit + Issue + Petitioner + Respondent + LowerCourt + Unconst, data = Train, method = "rpart", trControl = fitControl, tuneGrid = cartGrid )
+
+# Create a new CART model
+# Select the optimal model using the largest value
+StevensTreeCV = rpart(Reverse ~ Circuit + Issue + Petitioner + Respondent + LowerCourt + Unconst, method="class", data = Train, control=rpart.control(cp = 0.18))
+
+# Make predictions
+PredictCV = predict(StevensTreeCV, newdata = Test, type = "class")
+table(Test$Reverse, PredictCV)
+(59+64)/(59+18+29+64)
+
+```
+
+

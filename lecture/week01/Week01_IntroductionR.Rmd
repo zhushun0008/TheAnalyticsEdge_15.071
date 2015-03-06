@@ -1,0 +1,200 @@
+---
+title: "Output of RMD from Week01_IntroductionR"
+author: "Shun Zhu"
+date: "Wednesday, March 04, 2015"
+output:
+  pdf_document: default
+---
+
+
+### VIDEO 02: GETTING STARTED IN R
+
+```{r}
+
+# Basic Calculations
+8*6
+2^16
+# you will see plus sign and wait for you completing the command
+	# you Coud complete the command or hit Excape
+2^
+8*6
+8*10
+
+# Functions could take several arguments
+	# Build-in functions
+	# Install packages
+sqrt(2)
+abs(-65)
+
+# Get help of any functions
+?sqrt
+
+# Variables
+	# 1. DO not use spaces in variable names
+		 # using a mix of capital and lowercase letters
+	# 2. Do not start variable names with a number.
+	# 3. Case Sensitive
+SquareRoot2 = sqrt(2)
+SquareRoot2
+HoursYear <- 365*24
+HoursYear
+
+#  List all of the variables that you've created in your current R session
+ls()
+
+```
+
+
+### VIDEO 03: VECTORS AND DATA FRAMES
+
+```{r}
+
+# 01. c() indicates combining same objects in Columns
+c(2,3,5,8,13)
+
+# 02
+Country = c("Brazil", "China", "India", "Switzerland", "USA")
+LifeExpectancy = c(74, 76, 65, 83, 79)
+
+# 03 Automatically Convert numbers into string
+c("Brazil", 74, "China", 76)
+
+# 04
+Country[1]
+LifeExpectancy[3]
+
+# 05
+Sequence = seq(1, 100, 2)
+
+# 06 Maintain the type of original object
+CountryData = data.frame(Country, LifeExpectancy)
+CountryData
+
+# 07 Column Comibine
+	# R will just combine the vectors in the order they're typed
+Population = c(199000, 1390000, 1240000, 1997, 318000)
+CountryData = cbind(CountryData, Population)
+CountryData
+
+# 08. Add new observations with row combining
+
+Country = c("Australia", "Greece")
+LifeExpectancy = c(81, 82)
+Population = c(23050, 11125)
+NewCountryData = data.frame(Country, LifeExpectancy, Population)
+
+AllCountryData = rbind(CountryData, NewCountryData)
+AllCountryData
+
+```
+
+
+### VIDEO 04: LOADING DATA FILES
+
+```{r}
+# 1. Change working directory that has WHO.csv(World Health Organization)
+
+getwd()
+setwd("F:/SkyDrive/Studying/MIT_COURSES/15-071-TheAnalyticsEdge/lecture/dataset")
+
+# 2. Loading csv files
+WHO = read.csv("WHO.csv")
+
+
+# 3. str function shows the structure of the data
+#  the name of the country
+# the region the country is in
+# the population in thousands
+# the percentage of the population under 15
+# the percentage of the population over 60
+# the fertility rate or average number of children per woman
+# the life expectancy in years
+# the child mortality rate which is the number of children who die by age five per 1,000 births
+# the number of cellular subscribers per 100 population
+# the literacy rate among adults aged greater than or equal to 15
+# the gross national income per capital
+# the percentage of male children enrolled in primary school
+# he percentage of female children enrolled in primary school
+str(WHO)
+
+# 4. summary function gives a numerical summary of each of our variables
+summary(WHO)
+
+
+# 5. The subset function takes two arguments. The first is the data frame we want to take a subset of, in this case, WHO. And the second argument is the criteria for which observations of WHO should belong in our new data
+
+WHO_Europe = subset(WHO, Region == "Europe")
+str(WHO_Europe)
+
+# 6. save this new data frame, WHO_Europe, to a csv file
+write.csv(WHO_Europe, "WHO_Europe.csv")
+
+# 7. Removing variables in the working space to save used space
+ls()
+rm(WHO_Europe)
+
+```
+
+
+### VIDEO 05: DATA ANALYSIS
+
+```{r}
+
+# access a variable in a data frame
+WHO$under15
+
+# Basic data analysis 
+
+mean(WHO$Under15)
+sd(WHO$Under15)
+summary(WHO$Under15)
+
+# There's a country with only 13.12% (minimun) of the population under 15. Let's see which one it is.
+
+which.min(WHO$Under15)
+WHO$Country[86]
+
+which.max(WHO$Under15)
+WHO$Country[124]
+
+sort(WHO$Under15)
+
+
+# Scatterplot
+plot(WHO$GNI, WHO$FertilityRate)
+
+# Subsetting
+Outliers = subset(WHO, GNI > 10000 & FertilityRate > 2.5) 
+
+#  The number of rows in the dataset
+nrow(Outliers)
+
+# Extract a few variables from a data set
+Outliers[c("Country","GNI","FertilityRate")]
+
+```
+
+
+### VIDEO 06 : PLOTS AND SUMMARY TABLES
+
+```{r}
+
+# Histograms
+hist(WHO$CellularSubscribers)
+
+# Boxplot sorted by Region
+# Outliers are defined by first computing the difference between the first and third quartiles, or the height of the box. This number is called the inter-quartile range. Any point that is greater than the third quartile plus the inter-quartile range, or any point that is less than the first quartile minus the inter-quartile range is considered an outlier
+boxplot(WHO$LifeExpectancy ~ WHO$Region)
+
+boxplot(WHO$LifeExpectancy ~ WHO$Region, xlab = "Region", ylab = "Life Expectancy", main = "Life Expectancy of Countries by Region")
+
+# Summary Tables
+table(WHO$Region)
+
+tapply(WHO$Over60, WHO$Region, mean)
+tapply(WHO$LiteracyRate, WHO$Region, min)
+tapply(WHO$LiteracyRate, WHO$Region, min, na.rm=TRUE)
+
+```
+
+### VIDEO 07: SAVING WITH SCRIPT FILES

@@ -1,0 +1,112 @@
+Playing Moneyball in the NBA
+========================================================
+
+### 01. Dataset Explanation
+#### after  an 'A' it means the number that were attempted
+#### If a variable begins with a number it will put an 'X' in front of it.
+01. SeasonEnd - The year the season ended.
+02. Team - The name of the team.   
+03. Playoffs - A binary variable for whether or not a team made it to the playoffs that year
+04. W - The number of regular season wins 
+05. PTS - Points scored during the regular season   
+06. oppPTS - Opponent points scored during the regular season
+07. FG - The number of successful field goals      
+08. FGA - The number of attempted field goals      
+09. X2P - 2 ponits     
+10. X2PA     
+11. X3P       
+12. X3PA      
+13. FT - the number successful of free throws        
+14. FTA      
+15. ORB - Offensive rebounds
+16. DRB - Defensive rebounds    
+17. AST - Assists  
+18. STL - Steals   
+19. BLK - Blocks     
+20. TOV - Turnovers
+
+
+
+
+### 
+* Goal of a basetball team is similar to that of a baseball team, making the playoffs.
+ 1. How many games does a team need to win in order to make the playoffs
+ dwr
+fsfsdfsdgs
+
+
+
+```{r}
+# VIDEO 1
+
+# Read in the data
+NBA = read.csv("F:/SkyDrive/Studying/MIT_COURSES/Th AnalyticsEdge_15.071x/lecture/dataset/NBA_train.csv")
+str(NBA)
+
+
+# VIDEO 2
+
+# How many wins to make the playoffs?
+table(NBA$W, NBA$Playoffs)
+
+# Compute Points Difference
+NBA$PTSdiff = NBA$PTS - NBA$oppPTS
+
+# Check for linear relationship
+plot(NBA$PTSdiff, NBA$W)
+
+# Linear regression model for wins
+WinsReg = lm(W ~ PTSdiff, data=NBA)
+summary(WinsReg)
+
+
+# VIDEO 3
+
+# Linear regression model for points scored
+PointsReg = lm(PTS ~ X2PA + X3PA + FTA + AST + ORB + DRB + BLK + TOV + STL, data=NBA)
+summary(PointsReg)
+
+# Sum of Squared Errors
+PointsReg$residuals
+SSE = sum(PointsReg$residuals^2)
+SSE
+
+# Root mean squared error
+RMSE = sqrt(SSE/nrow(NBA))
+RMSE
+
+# Remove insignifcant variables
+PointsReg3 = lm(PTS ~ X2PA + X3PA + FTA + AST + ORB + STL, data=NBA)
+summary(PointsReg3)
+
+# Compute SSE and RMSE again
+SSE = sum(PointsReg3$residuals^2)
+SSE
+RMSE = sqrt(SSE/nrow(NBA))
+RMSE
+
+# Check for correlations
+RegVar = NBA[c("X2PA", "X3PA", "FTA", "AST", "ORB", "STL")]
+cor(RegVar)
+
+
+# VIDEO 4
+
+# Read in test set
+NBA_test = read.csv("NBA_test.csv")
+
+# Make predictions on test set
+PointsPredictions = predict(PointsReg, newdata=NBA_test)
+
+# Compute out-of-sample R^2
+SSE = sum((PointsPredictions - NBA_test$PTS)^2)
+SST = sum((mean(NBA$PTS) - NBA_test$PTS)^2)
+R2 = 1 - SSE/SST
+R2
+
+# Compute the RMSE
+RMSE = sqrt(SSE/nrow(NBA_test))
+RMSE
+
+
+```

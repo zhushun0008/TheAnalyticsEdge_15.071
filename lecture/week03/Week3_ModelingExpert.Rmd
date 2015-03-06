@@ -1,0 +1,155 @@
+---
+output: pdf_document
+---
+Week 03 : Modeling the Expert
+==============================
+
+### Description
+
+
+
+```{r}
+
+### Format 
+
+# The variables in the dataset quality.csv are as follows:
+
+# * __MemberID__ numbers the patients from 1 to 131, and is just an identifying number.
+
+# * __InpatientDays__ is the number of inpatient visits, or number of days the person spent in the hospital.
+
+# * __ERVisits__ is the number of times the patient visited the emergency room.
+
+# * __OfficeVisits__ is the number of times the patient visited any doctor's office.
+
+# * __Narcotics__ is the number of prescriptions the patient had for narcotics.
+
+# * __DaysSinceLastERVisit__ is the number of days between the patient's last emergency room visit and the end of the study period (set to the length of the study period if they never visited the ER). 
+
+# * __Pain__ is the number of visits for which the patient complained about pain.
+
+# * __TotalVisits__ is the total number of times the patient visited any healthcare provider.
+
+# * __ProviderCount__ is the number of providers that served the patient. Medical Claims is the number of days on which the patient had a medical claim.
+
+# * __ClaimLines__ is the total number of medical claims.
+
+# * __StartedOnCombination__ is whether or not the patient was started on a combination of drugs to treat their diabetes (TRUE or FALSE).
+
+# * __AcuteDrugGapSmall__ is the fraction of acute drugs that were refilled quickly after the prescription ran out.
+
+# * __PoorCare__ is the outcome or dependent variable, and is equal to 1 if the patient had poor care, and equal to 0 if the patient had good care.
+
+```
+
+### Video 04
+
+
+```{r}
+
+# Read in dataset
+
+quality = read.csv("F:/SkyDrive/Studying/MIT_COURSES/15-071-TheAnalyticsEdge/lecture/dataset/quality.csv")
+
+# Look at structure
+str(quality)
+
+# Table outcome
+table(quality$PoorCare)
+
+# Baseline accuracy
+98/131
+
+# Install and load caTools package
+# install.packages("caTools")
+library(caTools)
+
+# Randomly split data and make sure 75% of the data for training set and 25% for 
+# the tesing set and the ratio of good care is 75% both in the training set and 
+# testing set
+
+set.seed(88)
+?caTools
+?sample.split
+split = sample.split(quality$PoorCare, SplitRatio = 0.75)
+# TRUE for training set and FALSE for testing set
+split
+
+# Create training and testing sets
+qualityTrain = subset(quality, split == TRUE)
+qualityTest = subset(quality, split == FALSE)
+nrow(qualityTrain)
+nrow(qualityTest)
+
+# Logistic Regression Model using generalized linear model
+QualityLog = glm(PoorCare ~ OfficeVisits + Narcotics, data=qualityTrain, family=binomial)
+# It accounts for the number of variables used compared to the number of
+# observations. It provides a means for model selection. The preferred model is the one with the minimum AIC
+summary(QualityLog)
+
+# Make predictions on training set
+predictTrain = predict(QualityLog, type="response")
+
+# Analyze predictions
+summary(predictTrain)
+tapply(predictTrain, qualityTrain$PoorCare, mean)
+
+```
+
+
+### Video 5
+
+```{r}
+
+
+# Confusion matrix for threshold of 0.5
+table(qualityTrain$PoorCare, predictTrain > 0.5)
+
+# Sensitivity and specificity
+10/25
+70/74
+
+# Confusion matrix for threshold of 0.7
+table(qualityTrain$PoorCare, predictTrain > 0.7)
+
+# Sensitivity and specificity
+8/25
+73/74
+
+# Confusion matrix for threshold of 0.2
+table(qualityTrain$PoorCare, predictTrain > 0.2)
+
+# Sensitivity and specificity
+16/25
+54/74
+
+```
+
+
+### Video 06
+
+```{r}
+
+
+# Install and load ROCR package
+# install.packages("ROCR")
+library(ROCR)
+
+# Prediction function
+ROCRpred = prediction(predictTrain, qualityTrain$PoorCare)
+
+# Performance function
+ROCRperf = performance(ROCRpred, "tpr", "fpr")
+
+# Plot ROC curve
+plot(ROCRperf)
+
+# Add colors
+plot(ROCRperf, colorize=TRUE)
+
+# Add threshold labels 
+plot(ROCRperf, colorize=TRUE, print.cutoffs.at=seq(0,1,by=0.1), text.adj=c(-0.2,1.7))
+
+```
+
+

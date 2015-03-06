@@ -1,0 +1,344 @@
+Problem Set 01
+========================================================
+
+***
+
+### 00. Load all packages here this assignment needs
+
+```{r}
+# Set working directory
+setwd("F:/SkyDrive/Studying/MIT_COURSES/TheAnalyticsEdge_15.071x/problemSet/PS01")
+
+# Load all packages
+library(ggplot2)
+library(ggthemes)
+```
+***
+
+***
+### 01. An Analytic Detective
+1. How many rows of data (observations) are in this dataset?
+2. How many variables are in this dataset?
+3. Using the "max" function, what is the maximum value of the variable "ID"?
+4. What is the minimum value of the variable "Beat"?
+5. How many observations have value TRUE in the Arrest variable (this is the number of crimes for which an arrest was made)?
+6. How many observations have value a LocationDescription value of ALLEY?
+
+ref:
+ * Plot figure into a file
+  * http://www.stat.berkeley.edu/classes/s133/saving.html
+ * Boxplot
+  * http://msenux.redwoods.edu/math/R/boxplot.php
+  
+```{r}
+
+mvt <- read.csv("F:/SkyDrive/Studying/MIT_COURSES/Th AnalyticsEdge_15.071x/problemSet/datasetForPS/mvtWeek1.csv")
+# 
+str(mvt)
+
+max(mvt$ID)
+min(mvt$Beat)
+
+table(mvt$Arrest)
+summary(mvt)
+
+
+mvt$Date[1]
+
+DateConvert = as.Date(strptime(mvt$Date, "%m/%d/%y %H:%M"))
+summary(DateConvert)
+
+mvt$Month = months(DateConvert)
+
+mvt$Weekday = weekdays(DateConvert)
+mvt$Date = DateConvert
+
+table(mvt$Month)
+which.min(table(mvt$Month))
+
+which.max(table(mvt$Weekday))
+
+table(mvt$Arrest)
+
+which.max(tapply(mvt$Arrest, mvt$Month,sum))
+
+table(mvt$Arrest,mvt$Month)
+
+hist(mvt$Date, breaks=101)
+
+boxplot(mvt$Date ~ mvt$Arrest)
+
+table(mvt$Arrest, mvt$Year)
+2152/(2152+18517)
+1212/(1212+13068)
+550/(550+13542)
+
+sort(table(mvt$LocationDescription),decreasing=T)
+
+
+TopLocations = c("STREET", "PARKING LOT/GARAGE(NON.RESID.)", "ALLEY", "GAS STATION", "DRIVEWAY - RESIDENTIAL")
+
+Top5 = subset(mvt, LocationDescription %in% TopLocations)
+str(Top5)
+table(Top5$LocationDescription) 
+Top5$LocationDescription = factor(Top5$LocationDescription)
+
+table(Top5$LocationDescription, Top5$Arrest)
+249 / (249 + 2059)
+132 / (132 + 1543)
+439 / (439 + 1672)
+1603 / (1603 + 13249)
+11595 / (11595 + 144969)
+
+table(Top5$LocationDescription, Top5$Weekday)
+
+```
+***
+
+***
+### 02. Stock Dynamics
+
+```{r}
+
+IBM <- read.csv("F:/SkyDrive/Studying/MIT_COURSES/TheAnalyticsEdge_15.071x/problemSet/datasetForPS/IBMStock.csv")
+
+GE <- read.csv("F:/SkyDrive/Studying/MIT_COURSES/TheAnalyticsEdge_15.071x/problemSet/datasetForPS/GEStock.csv")
+
+ProcterGamble <- read.csv("F:/SkyDrive/Studying/MIT_COURSES/TheAnalyticsEdge_15.071x/problemSet/datasetForPS/ProcterGambleStock.csv")
+
+CocaCola <- read.csv("F:/SkyDrive/Studying/MIT_COURSES/TheAnalyticsEdge_15.071x/problemSet/datasetForPS/CocaColaStock.csv")
+
+Boeing <- read.csv("F:/SkyDrive/Studying/MIT_COURSES/TheAnalyticsEdge_15.071x/problemSet/datasetForPS/BoeingStock.csv")
+
+
+### 01. Summary Statistics
+
+# Convert the data into a format that R can understand.
+
+IBM$Date = as.Date(IBM$Date, "%m/%d/%y")
+GE$Date <- as.Date(GE$Date, "%m/%d/%y")
+ProcterGamble$Date <- as.Date(ProcterGamble$Date, "%m/%d/%y")
+CocaCola$Date <- as.Date(CocaCola$Date, "%m/%d/%y")
+Boeing$Date <- as.Date(Boeing$Date, "%m/%d/%y")
+
+class(IBM$Date)
+
+str(IBM)
+summary(IBM)
+summary(GE)
+summary(CocaCola)
+summary(Boeing)
+sd(ProcterGamble$StockPrice)
+
+### 02. Visualizing stock dynamics
+plot(CocaCola$Date, CocaCola$StockPrice)
+
+# Since this is a time continous time period, plot line of it.
+plot(CocaCola$Date, CocaCola$StockPrice, type = "l", col = "red")
+lines(ProcterGamble$Date,ProcterGamble$StockPrice, col = "blue")
+abline(v = as.Date(c("2000-03-01")), lwd = 2)
+abline(v = as.Date(c("1983-01-01")), lwd = 2)
+
+# How to change the ggplot plot ?
+# ggplot(aes(x = Date, y = StockPrice), data = CocaCola) +
+# 	geom_line(color = "red") +
+# 	geom_line(aes(ProcterGamble$Date,ProcterGamble$StockPrice), color = "blue") +
+# 	geom_vline(aes(x = "2000-03-01"))) +
+# 	theme_solarized()
+
+
+### 03. Visualizing Stock Dynamics 1995-2005
+
+plot(CocaCola$Date[301:432], CocaCola$StockPrice[301:432], type = "l", col = "red", ylim = c(0,210))
+lines(ProcterGamble$Date,ProcterGamble$StockPrice, col = "blue")
+
+lines(ProcterGamble$Date[301:432], ProcterGamble$StockPrice[301:432], col = "blue", ylim = c(0,210))
+
+lines(IBM$Date[301:432], IBM$StockPrice[301:432], col = "green", ylim = c(0,210))
+
+lines(GE$Date[301:432], GE$StockPrice[301:432], col = "purple", ylim = c(0,210))
+
+lines(Boeing$Date[301:432], Boeing$StockPrice[301:432], col = "orange", ylim = c(0,210))
+
+abline(v = as.Date(c("2000-03-01")), lwd = 0.5)
+abline(v = as.Date(c("1997-09-01")), lwd = 0.5)
+
+abline(v = as.Date(c("1997-10-01")), lwd = 0.5)
+abline(v = as.Date(c("1997-11-01")), lwd = 0.5)
+
+
+
+# 04. Monthly trends
+IBM$Month <- months(IBM$Date)
+mean(IBM$StockPrice)
+avreagePriceByMonth <- tapply(IBM$StockPrice,IBM$Month, mean)
+
+avreagePriceByMonth > mean(IBM$StockPrice)
+
+tapply(GE$StockPrice, months(GE$Date), mean)
+
+tapply(CocaCola$StockPrice, months(CocaCola$Date), mean)
+
+```
+
+***
+
+
+***
+### 03. Internet Privacy Poll
+
+```{r}
+# 01. Loading and Summarizing The Dataset
+poll <- read.csv("F:/SkyDrive/Studying/MIT_COURSES/TheAnalyticsEdge_15.071x/problemSet/datasetForPS/AnonymityPoll.csv")
+head(poll)
+str(poll)
+summary(poll)
+summary(poll$Smartphone)
+
+table(poll$Smartphone)
+
+
+table(poll$Sex,poll$Region)
+table(poll$State,poll$Region)
+
+
+# 02. Internet and smartphone users
+summary(poll$Info.On.Internet)
+summary(poll$Worry.About.Info)
+str(poll)
+table(poll$Internet.Use,poll$Smartphone)
+
+summary(poll$Internet.Use)
+summary(poll$Smartphone)
+
+limited <- subset(poll, poll$Internet.Use == 1 | poll$Smartphone == 1)
+str(limited)
+
+
+# 03. Summarizing opinions about internet privacy
+
+summary(limited)
+table(limited$Info.On.Internet)
+
+
+table(limited$Worry.About.Info)
+386 / (404 + 386)
+
+
+table(limited$Anonymity.Possible)
+278 / (475 + 278)
+
+table(limited$Tried.Masking.Identity)
+128 / (656 + 128)
+
+table(limited$Privacy.Laws.Effective)
+186 / (541 + 186)
+
+# 04. Relating demographics of polling results
+
+ggplot(aes(x = Age), data = limited) +
+	geom_histogram() +
+	theme_solarized()
+
+ hist(limited$Age)
+
+ggplot(aes(x = Age, y = Info.On.Internet), data = limited) +
+	geom_point() +
+	theme_solarized()
+
+max(table(limited$Age, limited$Info.On.Internet))
+
+
+jitter(c(1,2,3))
+ggplot(aes(x = Age, y = Info.On.Internet), data = limited) +
+	geom_jitter() +
+	theme_solarized()
+
+plot(jitter(limited$Age), jitter(limited$Info.On.Internet))
+
+tapply(limited$Info.On.Internet,limited$Smartphone,summary)
+
+table(limited$Smartphone,limited$Tried.Masking.Identity)
+
+93 / (33 + 93)
+
+33 / (33 + 93)
+
+```
+
+***
+
+***
+### 04. Demographics and employment in the United States
+
+```{r}
+### 01. Load and summarizing the dataset
+
+CPS <- read.csv("F:/SkyDrive/Studying/MIT_COURSES/TheAnalyticsEdge_15.071x/problemSet/datasetForPS/CPSData.csv")
+summary(CPS)
+str(CPS)
+
+sort(table(CPS$State))
+
+summary(CPS)
+(116639 + 7073) / (116639 + 7073 + 7590)
+
+table(CPS$Race, CPS$Hispanic)
+
+### 02. Evaluate missing values
+summary(CPS)
+
+table(CPS$Region, is.na(CPS$Married))
+table(CPS$Age, is.na(CPS$Married))
+table(CPS$Sex, is.na(CPS$Married))
+table(CPS$Citizenship, is.na(CPS$Married))
+
+
+table(CPS$State,is.na(CPS$MetroAreaCode))
+
+table(CPS$Region,is.na(CPS$MetroAreaCode))
+10674 / (10674 + 20010)
+5609 / (5609 + 20330)
+9871 / (9871 + 31631)
+8084 / (8084 + 25093)
+
+sort(tapply(is.na(CPS$MetroAreaCode),CPS$State, mean))
+
+
+### 03. Integrating Metropolitan Area Data
+
+MetroAreaCodes <- read.csv("F:/SkyDrive/Studying/MIT_COURSES/TheAnalyticsEdge_15.071x/problemSet/datasetForPS/MetroAreaCodes.csv")
+nrow(MetroAreaCodes)
+
+CountryCodes <- read.csv("F:/SkyDrive/Studying/MIT_COURSES/TheAnalyticsEdge_15.071x/problemSet/datasetForPS/CountryCodes.csv")
+nrow(CountryCodes)
+
+CPS <- merge(CPS,MetroAreaCodes, by.x = "MetroAreaCode",by.y = "Code", all.x = TRUE)
+sort(summary(CPS$MetroArea))
+str(CPS)
+
+
+summary(CPS$Hispanic)
+sort(tapply(CPS$Hispanic, CPS$MetroArea, mean))
+
+sort(tapply(CPS$Race == "Asian", CPS$MetroArea, mean))
+
+sort(tapply(CPS$Education == "No high school diploma", CPS$MetroArea,mean,  na.rm = TRUE))
+
+### 04. Integrating Country of Birth Data
+names(CPS)
+CPS <- merge(CPS, CountryCodes,by.x = "CountryOfBirthCode", by.y = "Code", all.x = TRUE)
+summary(CPS)
+sort(table(CPS$Country))
+
+sort(tapply(CPS$Country == "No high school diploma", CPS$MetroArea,mean,  na.rm = TRUE))
+
+tapply(CPS$Country != "United States",CPS$MetroArea == "New York-Northern New Jersey-Long Island, NY-NJ-PA", mean,na.rm = T)
+
+sort(tapply(CPS$Country == "India", CPS$MetroArea, sum, na.rm=TRUE))
+
+sort(tapply(CPS$Country == "Somalia", CPS$MetroArea, sum, na.rm=TRUE))
+
+```
+
+***
