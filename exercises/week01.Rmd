@@ -32,6 +32,21 @@ which.min(c(4,1,6))
 'SquareRoot2'
 'Square2.Root'
 
+
+
+setwd("F:/SkyDrive/Studying/MIT_COURSES/15-071-TheAnalyticsEdge/TheAnalyticsEdge_15.071/lecture/dataset")
+
+# 2. Loading csv files
+# 06
+WHO = read.csv("WHO.csv")
+str(WHO)
+summary(WHO)
+WHO$Country[which.min(WHO$Over60)]
+WHO$Country[which.max(WHO$LiteracyRate)]
+
+# 07
+meanMortalityByRegion <- tapply(WHO$ChildMortality, WHO$Region, mean)
+meanMortalityByRegion[which.min(meanMortalityByRegion)]
 ```
 
 
